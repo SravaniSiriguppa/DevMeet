@@ -8,7 +8,7 @@ authRouter.post("/signup", async (req, res) => {
     const user = new User(req.body);
     await user.save();
 
-    res.send("User added successfully");
+    res.status(201).send("User added successfully");
   } catch (err) {
     res.status(400).send(err.message);
   }
