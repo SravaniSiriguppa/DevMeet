@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Welcome to NamasteDev Backend 🚀");
+  res.send("Welcome to NamasteDev Backend 🚀 ");
 });
 
 module.exports = app;
