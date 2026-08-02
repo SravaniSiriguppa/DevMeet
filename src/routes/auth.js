@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const jsonWebToken = require("jsonwebtoken");
+
 const User = require("../models/User");
 
 const authRouter = express.Router();
@@ -51,6 +53,16 @@ authRouter.post("/login", async( req, res ) => {
         if(!isPasswordValid) {
             return res.status(401).send("Invalid password");
         }
+
+        const token = jsonWebToken.sign(
+            {_id: user._id,},
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d",
+            }
+        )
+
+        res.cookie("token", token);
 
         return res.status(200).send("Login successful");
     } catch(err) {
