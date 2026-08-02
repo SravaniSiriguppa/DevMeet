@@ -71,8 +71,4 @@ authRouter.post("/login", async( req, res ) => {
     }
 })
 
-authRouter.get("/profile", auth, ( req, res ) => {
-    res.send(req.user);
-})
-
 module.exports = authRouter;
