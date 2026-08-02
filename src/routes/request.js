@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 const User = require("../models/User");
-const ConnectionRequest = require("../models/ConnectionRequests");
+const ConnectionRequest = require("../models/ConnectionRequest");
 
 const auth = require("../middleware/auth");
 const requestRouter = express.Router();
@@ -90,7 +90,7 @@ requestRouter.post("/review/:status/:requestId", auth, async (req, res) => {
     connectionRequest.status = status;
     await connectionRequest.save();
 
-    return res.status(200).send("Reviewed the request");
+    return res.status(200).send("Connection Request " + status);
   } catch (err) {
     res.status(400).send("Error in reviewing request");
   }
