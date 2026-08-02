@@ -55,4 +55,45 @@ userRouter.get("/connections", auth, async (req, res) => {
   });
 });
 
+userRouter.get("/feed", auth, async (req, res) => {
+  const loggedInUser = req.user;
+
+  const page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 10;
+
+  limit = limit > 50 ? 50 : limit;
+
+  const skip = (page - 1) * limit;
+
+  const connectionRequests = await ConnectionRequest.find({
+    $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+  });
+
+  const hideUsersFromFeed = new Set();
+
+  connectionRequests.forEach((request) => {
+    hideUsersFromFeed.add(request.fromUserId.toString());
+    hideUsersFromFeed.add(request.toUserId.toString());
+  });
+
+  const users = await User.find({
+    $and: [
+      {
+        _id: {
+          $nin: [...hideUsersFromFeed],
+        },
+      },
+      {
+        _id: {
+          $ne: loggedInUser._id,
+        },
+      },
+    ],
+  }).select("firstName lastName photoUrl age gender about skills")
+    .skip(skip)
+    .limit(limit);
+
+    return res.send(users);
+});
+
 module.exports = userRouter;
