@@ -56,44 +56,53 @@ userRouter.get("/connections", auth, async (req, res) => {
 });
 
 userRouter.get("/feed", auth, async (req, res) => {
-  const loggedInUser = req.user;
+  try {
+    const loggedInUser = req.user;
 
-  const page = parseInt(req.query.page) || 1;
-  let limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    if (page < 1) {
+      return res.status(400).send("Invalid page number");
+    }
 
-  limit = limit > 50 ? 50 : limit;
+    let limit = parseInt(req.query.limit) || 10;
 
-  const skip = (page - 1) * limit;
+    limit = limit > 50 ? 50 : limit;
 
-  const connectionRequests = await ConnectionRequest.find({
-    $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
-  });
+    const skip = (page - 1) * limit;
 
-  const hideUsersFromFeed = new Set();
+    const connectionRequests = await ConnectionRequest.find({
+      $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
+    });
 
-  connectionRequests.forEach((request) => {
-    hideUsersFromFeed.add(request.fromUserId.toString());
-    hideUsersFromFeed.add(request.toUserId.toString());
-  });
+    const hideUsersFromFeed = new Set();
 
-  const users = await User.find({
-    $and: [
-      {
-        _id: {
-          $nin: [...hideUsersFromFeed],
+    connectionRequests.forEach((request) => {
+      hideUsersFromFeed.add(request.fromUserId.toString());
+      hideUsersFromFeed.add(request.toUserId.toString());
+    });
+
+    const users = await User.find({
+      $and: [
+        {
+          _id: {
+            $nin: [...hideUsersFromFeed],
+          },
         },
-      },
-      {
-        _id: {
-          $ne: loggedInUser._id,
+        {
+          _id: {
+            $ne: loggedInUser._id,
+          },
         },
-      },
-    ],
-  }).select("firstName lastName photoUrl age gender about skills")
-    .skip(skip)
-    .limit(limit);
+      ],
+    })
+      .select("firstName lastName photoUrl age gender about skills")
+      .skip(skip)
+      .limit(limit);
 
     return res.send(users);
+  } catch (err) {
+    return res.status(400).send(err.message);
+  }
 });
 
 module.exports = userRouter;
