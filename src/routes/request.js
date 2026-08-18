@@ -90,7 +90,11 @@ requestRouter.post("/review/:status/:requestId", auth, async (req, res) => {
     connectionRequest.status = status;
     await connectionRequest.save();
 
-    return res.status(200).send("Connection Request " + status);
+    // return res.status(200).send("Connection Request " + status);
+    return res.json({
+            message: `Received request`,
+            data: loggedInUser
+        })
   } catch (err) {
     res.status(400).send("Error in reviewing request");
   }
