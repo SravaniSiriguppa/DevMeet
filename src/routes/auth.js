@@ -49,7 +49,8 @@ authRouter.post("/signup", async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false
+            secure: true,
+            sameSite: "none",
         });
 
     res.json({message:"User added successfully", data: savedUser});
@@ -82,7 +83,8 @@ authRouter.post("/login", async( req, res ) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false
+            secure: true,
+            sameSite: "none",
         });
 
         return res.status(200).send(user);
