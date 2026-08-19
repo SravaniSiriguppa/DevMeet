@@ -9,8 +9,21 @@ const userRouter = require("./routes/user");
 
 const app = express();
 
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://dev-meet-7.web.app"
+
+];
+
 app.use(cors({
-    origin: "http://localhost:5173, https://dev-meet-7.web.app",
+    // origin: "http://localhost:5173, https://dev-meet-7.web.app",
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 }))
